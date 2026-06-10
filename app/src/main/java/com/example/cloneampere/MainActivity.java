@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,14 +14,35 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView txtCurrent;
     private TextView txtAvgCurrent;
-    private TextView txtBattery;
-    private TextView txtVoltage;
-    private TextView txtTemperature;
+
+    private TextView txtMin;
+    private TextView txtMax;
+
     private TextView txtStatus;
+    private TextView txtLevel;
     private TextView txtHealth;
-    private TextView txtTechnology;
+    private TextView txtVoltage;
+    private TextView txtTemp;
+    private TextView txtTech;
+
     private TextView txtCapacity;
     private TextView txtChargeCounter;
+
+    private float minCurrent = Float.MAX_VALUE;
+    private float maxCurrent = Float.MIN_VALUE;
+
+    private final Handler handler =
+            new Handler(Looper.getMainLooper());
+
+    private final Runnable updateTask = new Runnable() {
+        @Override
+        public void run() {
+
+            loadBatteryInfo();
+
+            handler.postDelayed(this, 1000);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,16 +51,21 @@ public class MainActivity extends AppCompatActivity {
 
         txtCurrent = findViewById(R.id.txtCurrent);
         txtAvgCurrent = findViewById(R.id.txtAvgCurrent);
-        txtBattery = findViewById(R.id.txtBattery);
-        txtVoltage = findViewById(R.id.txtVoltage);
-        txtTemperature = findViewById(R.id.txtTemperature);
+
+        txtMin = findViewById(R.id.txtMin);
+        txtMax = findViewById(R.id.txtMax);
+
         txtStatus = findViewById(R.id.txtStatus);
+        txtLevel = findViewById(R.id.txtLevel);
         txtHealth = findViewById(R.id.txtHealth);
-        txtTechnology = findViewById(R.id.txtTechnology);
+        txtVoltage = findViewById(R.id.txtVoltage);
+        txtTemp = findViewById(R.id.txtTemp);
+        txtTech = findViewById(R.id.txtTech);
+
         txtCapacity = findViewById(R.id.txtCapacity);
         txtChargeCounter = findViewById(R.id.txtChargeCounter);
 
-        loadBatteryInfo();
+        handler.post(updateTask);
     }
 
     private void loadBatteryInfo() {
@@ -51,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         if (batteryManager == null || batteryStatus == null) {
-            txtCurrent.setText("Không lấy được thông tin pin");
+            txtCurrent.setText("Battery Error");
             return;
         }
 
@@ -91,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
                 BatteryManager.BATTERY_PROPERTY_CAPACITY);
 
         String statusText;
+
         switch (status) {
+
             case BatteryManager.BATTERY_STATUS_CHARGING:
                 statusText = "Charging";
                 break;
@@ -113,7 +143,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String healthText;
+
         switch (health) {
+
             case BatteryManager.BATTERY_HEALTH_GOOD:
                 healthText = "Good";
                 break;
@@ -143,15 +175,91 @@ public class MainActivity extends AppCompatActivity {
         float voltageV = voltage / 1000f;
         float tempC = temperature / 10f;
 
-        txtCurrent.setText(String.format("%.0f mA", currentNowMa));
-        txtAvgCurrent.setText("Average Current: " + currentAvgMa + " mA");
-        txtBattery.setText("Battery: " + batteryPct + " %");
-        txtVoltage.setText("Voltage: " + voltageV + " V");
-        txtTemperature.setText("Temperature: " + tempC + " °C");
-        txtStatus.setText("Status: " + statusText);
-        txtHealth.setText("Health: " + healthText);
-        txtTechnology.setText("Technology: " + technology);
-        txtCapacity.setText("Capacity API: " + capacity + " %");
-        txtChargeCounter.setText("Charge Counter: " + chargeCounter + " µAh");
+        if (currentNowMa < minCurrent) {
+            minCurrent = currentNowMa;
+        }
+
+        if (currentNowMa > maxCurrent) {
+            maxCurrent = currentNowMa;
+        }
+
+        String currentText;
+
+        if (currentNowMa > 0) {
+            currentText = "+" +
+                    String.format("%.0f", currentNowMa);
+        } else {
+            currentText =
+                    String.format("%.0f", currentNowMa);
+        }
+
+        txtCurrent.setText(currentText);
+
+        txtAvgCurrent.setText(
+                "Average Current: "
+                        + String.format("%.0f", currentAvgMa)
+                        + " mA"
+        );
+
+        txtMin.setText(
+                "min: "
+                        + String.format("%.0f", minCurrent)
+                        + " mA"
+        );
+
+        txtMax.setText(
+                "max: "
+                        + String.format("%.0f", maxCurrent)
+                        + " mA"
+        );
+
+        txtStatus.setText(
+                "Status: " + statusText
+        );
+
+        txtLevel.setText(
+                "Level: "
+                        + String.format("%.0f", batteryPct)
+                        + "%"
+        );
+
+        txtHealth.setText(
+                "Health: " + healthText
+        );
+
+        txtVoltage.setText(
+                "Voltage: "
+                        + voltageV
+                        + " V"
+        );
+
+        txtTemp.setText(
+                "Temperature: "
+                        + tempC
+                        + " °C"
+        );
+
+        txtTech.setText(
+                "Technology: " + technology
+        );
+
+        txtCapacity.setText(
+                "Capacity API: "
+                        + capacity
+                        + "%"
+        );
+
+        txtChargeCounter.setText(
+                "Charge Counter: "
+                        + chargeCounter
+                        + " µAh"
+        );
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        handler.removeCallbacks(updateTask);
     }
 }
