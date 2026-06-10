@@ -11,6 +11,15 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MainActivity extends AppCompatActivity {
 
     private TextView txtCurrent;
+    private TextView txtAvgCurrent;
+    private TextView txtBattery;
+    private TextView txtVoltage;
+    private TextView txtTemperature;
+    private TextView txtStatus;
+    private TextView txtHealth;
+    private TextView txtTechnology;
+    private TextView txtCapacity;
+    private TextView txtChargeCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,6 +27,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         txtCurrent = findViewById(R.id.txtCurrent);
+        txtAvgCurrent = findViewById(R.id.txtAvgCurrent);
+        txtBattery = findViewById(R.id.txtBattery);
+        txtVoltage = findViewById(R.id.txtVoltage);
+        txtTemperature = findViewById(R.id.txtTemperature);
+        txtStatus = findViewById(R.id.txtStatus);
+        txtHealth = findViewById(R.id.txtHealth);
+        txtTechnology = findViewById(R.id.txtTechnology);
+        txtCapacity = findViewById(R.id.txtCapacity);
+        txtChargeCounter = findViewById(R.id.txtChargeCounter);
+
+        loadBatteryInfo();
+    }
+
+    private void loadBatteryInfo() {
 
         BatteryManager batteryManager =
                 (BatteryManager) getSystemService(BATTERY_SERVICE);
@@ -32,14 +55,12 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // Current
         int currentNow = batteryManager.getIntProperty(
                 BatteryManager.BATTERY_PROPERTY_CURRENT_NOW);
 
         int currentAvg = batteryManager.getIntProperty(
                 BatteryManager.BATTERY_PROPERTY_CURRENT_AVERAGE);
 
-        // Battery %
         int level = batteryStatus.getIntExtra(
                 BatteryManager.EXTRA_LEVEL, -1);
 
@@ -48,31 +69,24 @@ public class MainActivity extends AppCompatActivity {
 
         float batteryPct = level * 100f / scale;
 
-        // Voltage
         int voltage = batteryStatus.getIntExtra(
                 BatteryManager.EXTRA_VOLTAGE, -1);
 
-        // Temperature
         int temperature = batteryStatus.getIntExtra(
                 BatteryManager.EXTRA_TEMPERATURE, -1);
 
-        // Status
         int status = batteryStatus.getIntExtra(
                 BatteryManager.EXTRA_STATUS, -1);
 
-        // Health
         int health = batteryStatus.getIntExtra(
                 BatteryManager.EXTRA_HEALTH, -1);
 
-        // Technology
         String technology = batteryStatus.getStringExtra(
                 BatteryManager.EXTRA_TECHNOLOGY);
 
-        // Charge Counter (µAh)
         int chargeCounter = batteryManager.getIntProperty(
                 BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER);
 
-        // Capacity (%)
         int capacity = batteryManager.getIntProperty(
                 BatteryManager.BATTERY_PROPERTY_CAPACITY);
 
@@ -81,15 +95,19 @@ public class MainActivity extends AppCompatActivity {
             case BatteryManager.BATTERY_STATUS_CHARGING:
                 statusText = "Charging";
                 break;
+
             case BatteryManager.BATTERY_STATUS_DISCHARGING:
                 statusText = "Discharging";
                 break;
+
             case BatteryManager.BATTERY_STATUS_FULL:
                 statusText = "Full";
                 break;
+
             case BatteryManager.BATTERY_STATUS_NOT_CHARGING:
                 statusText = "Not Charging";
                 break;
+
             default:
                 statusText = "Unknown";
         }
@@ -99,18 +117,23 @@ public class MainActivity extends AppCompatActivity {
             case BatteryManager.BATTERY_HEALTH_GOOD:
                 healthText = "Good";
                 break;
+
             case BatteryManager.BATTERY_HEALTH_OVERHEAT:
                 healthText = "Overheat";
                 break;
+
             case BatteryManager.BATTERY_HEALTH_DEAD:
                 healthText = "Dead";
                 break;
+
             case BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE:
                 healthText = "Over Voltage";
                 break;
+
             case BatteryManager.BATTERY_HEALTH_COLD:
                 healthText = "Cold";
                 break;
+
             default:
                 healthText = "Unknown";
         }
@@ -120,21 +143,15 @@ public class MainActivity extends AppCompatActivity {
         float voltageV = voltage / 1000f;
         float tempC = temperature / 10f;
 
-        txtCurrent.setText(
-                "Current Now: " + currentNowMa + " mA\n" +
-                        "Current Avg: " + currentAvgMa + " mA\n\n" +
-
-                        "Battery: " + batteryPct + " %\n" +
-                        "Capacity API: " + capacity + " %\n\n" +
-
-                        "Voltage: " + voltageV + " V\n" +
-                        "Temperature: " + tempC + " °C\n\n" +
-
-                        "Status: " + statusText + "\n" +
-                        "Health: " + healthText + "\n" +
-                        "Technology: " + technology + "\n\n" +
-
-                        "Charge Counter: " + chargeCounter + " µAh"
-        );
+        txtCurrent.setText(String.format("%.0f mA", currentNowMa));
+        txtAvgCurrent.setText("Average Current: " + currentAvgMa + " mA");
+        txtBattery.setText("Battery: " + batteryPct + " %");
+        txtVoltage.setText("Voltage: " + voltageV + " V");
+        txtTemperature.setText("Temperature: " + tempC + " °C");
+        txtStatus.setText("Status: " + statusText);
+        txtHealth.setText("Health: " + healthText);
+        txtTechnology.setText("Technology: " + technology);
+        txtCapacity.setText("Capacity API: " + capacity + " %");
+        txtChargeCounter.setText("Charge Counter: " + chargeCounter + " µAh");
     }
 }

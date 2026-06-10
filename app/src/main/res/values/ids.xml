@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="txtChargeCounter" type="id" />
+    <item name="txtAvgCurrent" type="id" />
+    <item name="txtBattery" type="id" />
+    <item name="txtVoltage" type="id" />
+    <item name="txtTemperature" type="id" />
+    <item name="txtStatus" type="id" />
+    <item name="txtHealth" type="id" />
+    <item name="txtTechnology" type="id" />
+    <item name="txtCapacity" type="id" />
+</resources>
